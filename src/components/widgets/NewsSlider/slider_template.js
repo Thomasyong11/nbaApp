@@ -12,6 +12,7 @@ const SliderTemplate = (props) => {
     speed: 500,
     slidesToshow: 1,
     slidesToScroll: 1,
+    ...props.settings,
   };
   switch (props.type) {
     case "featured":
