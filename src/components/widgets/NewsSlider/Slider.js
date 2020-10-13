@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { Component } from "react";
 import SliderTemplate from "./slider_template";
+import { URL } from "../../../config";
 class NewsSlider extends Component {
   state = {
     news: [],
@@ -8,7 +9,7 @@ class NewsSlider extends Component {
   UNSAFE_componentWillMount() {
     axios
       .get(
-        `http://localhost:3004/articles?_start=${this.props.start}&_end=${this.props.amount}`
+        `${URL}/articles?_start=${this.props.start}&_end=${this.props.amount}`
       )
       .then((response) => {
         this.setState({
