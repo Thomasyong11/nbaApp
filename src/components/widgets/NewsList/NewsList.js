@@ -32,6 +32,8 @@ class NewsList extends Component {
       .then((response) => {
         this.setState({
           items: [...this.state.items, ...response.data], //appending load more to existing list instead of overriding
+          start, //updating start and end
+          end,
         });
       });
   };
