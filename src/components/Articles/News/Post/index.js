@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import {
   firebaseDB,
-  firebaseDb,
   firebaseLooper,
   firebaseTeams,
 } from "../../../../firebase";
