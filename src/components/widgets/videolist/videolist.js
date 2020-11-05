@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import styles from "./videosList.module.css";
-import axios from "axios";
-import { URL } from "../../../config";
 import Button from "../Buttons/buttons";
 import VideosListTemplate from "./videoslist_template";
+import {
+  firebaseLooper,
+  firebaseVideos,
+  firebaseTeams,
+} from "../../../firebase";
 class VideoList extends Component {
   state = {
     teams: [],
@@ -17,20 +20,33 @@ class VideoList extends Component {
   }
   request = (start, end) => {
     if (this.state.teams.length < 1) {
-      axios.get(`${URL}/teams`).then((response) => {
-        this.setState({
-          teams: response.data,
-        });
+      firebaseTeams.once("value").then((snapshot) => {
+        const teams = firebaseLooper(snapshot);
+        this.setState({ teams });
       });
     }
-
-    axios.get(`${URL}/videos?_start=${start}&_end=${end}`).then((response) => {
-      this.setState({
-        videos: [...this.state.videos, ...response.data],
-        start, //updating start and end
-        end,
+    firebaseVideos
+      .orderByChild("id")
+      .startAt(start)
+      .endAt(end)
+      .once("value")
+      .then((snapshot) => {
+        const videos = firebaseLooper(snapshot);
+        this.setState({
+          videos: [...this.state.videos, ...videos], //appending load more to existing list instead of overriding
+          start, //updating start and end
+          end,
+        });
+      })
+      .catch((e) => {
+        console.log(e);
       });
-    });
+
+    // axios.get(`${URL}/videos?_start=${start}&_end=${end}`).then((response) => {
+    //   this.setState({
+    //     videos: [...this.state.videos, ...response.data],
+    //     start, //updating start and end
+    //     end,
   };
 
   renderVideos = () => {
@@ -53,7 +69,7 @@ class VideoList extends Component {
 
   loadMore = () => {
     let end = this.state.end + this.state.amount;
-    this.request(this.state.end, end);
+    this.request(this.state.end + 1, end);
   };
   renderButton = () => {
     return this.props.loadmore ? (

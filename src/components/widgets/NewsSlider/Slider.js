@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import SliderTemplate from "./slider_template";
-import { firebaseArticles } from "../../../firebase";
+import { firebaseArticles, firebaseLooper } from "../../../firebase";
 class NewsSlider extends Component {
   state = {
     news: [],
@@ -10,15 +10,9 @@ class NewsSlider extends Component {
       .limitToFirst(3)
       .once("value")
       .then((snapshot) => {
-        const news = [];
-        snapshot.forEach((childsnapshot) => {
-          news.push({
-            ...childsnapshot.val(),
-            id: childsnapshot.key,
-          });
-          this.setState({
-            news,
-          });
+        const news = firebaseLooper(snapshot);
+        this.setState({
+          news,
         });
       });
     // axios
@@ -32,7 +26,7 @@ class NewsSlider extends Component {
     //   });
   }
   render() {
-    console.log(this.state);
+    // console.log(this.state);
     return (
       <SliderTemplate
         data={this.state.news}

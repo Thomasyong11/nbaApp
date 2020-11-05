@@ -1,8 +1,11 @@
 import React, { Component } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Link } from "react-router-dom";
-import axios from "axios";
-import { URL } from "../../../config";
+import {
+  firebaseTeams,
+  firebaseArticles,
+  firebaseLooper,
+} from "../../../firebase";
 import Button from "../Buttons/buttons";
 import styles from "./newslist.module.css";
 import CardInfo from "../CardInfo/cardinfo";
@@ -21,26 +24,46 @@ class NewsList extends Component {
 
   request = (start, end) => {
     if (this.state.teams.length < 1) {
-      axios.get(`${URL}/teams`).then((response) => {
-        this.setState({
-          teams: response.data,
-        });
+      firebaseTeams.once("value").then((snapshot) => {
+        const teams = firebaseLooper(snapshot);
+        this.setState({ teams });
       });
+      // axios.get(`${URL}/teams`).then((response) => {
+      //   this.setState({
+      //     teams: response.data,
+      //   });
+      // });
     }
-    axios
-      .get(`${URL}/articles?_start=${start}&_end=${end}`)
-      .then((response) => {
+    firebaseArticles
+      .orderByChild("id")
+      .startAt(start)
+      .endAt(end)
+      .once("value")
+      .then((snapshot) => {
+        const articles = firebaseLooper(snapshot);
         this.setState({
-          items: [...this.state.items, ...response.data], //appending load more to existing list instead of overriding
+          items: [...this.state.items, ...articles], //appending load more to existing list instead of overriding
           start, //updating start and end
           end,
         });
+      })
+      .catch((e) => {
+        console.log(e);
       });
+    // axios
+    //   .get(`${URL}/articles?_start=${start}&_end=${end}`)
+    //   .then((response) => {
+    //     this.setState({
+    //       items: [...this.state.items, ...response.data], //appending load more to existing list instead of overriding
+    //       start, //updating start and end
+    //       end,
+    //     });
+    //   });
   };
 
   loadMore = () => {
     let end = this.state.end + this.state.amount; //getting the end from state + the props amount passed to the state
-    this.request(this.state.end, end); // now the begining will be 3 ie the end of the first render and the end will be 6 ie 3 + the amount "3"
+    this.request(this.state.end + 1, end); // now the begining will be 3 ie the end of the first render and the end will be 6 ie 3 + the amount "3"
   };
 
   renderNews = (type) => {
