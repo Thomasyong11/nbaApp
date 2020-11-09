@@ -16,4 +16,13 @@
   padding: 12px 10px;
   box-sizing: border-box;
   font-weight: 300;
+  border-radius: 5px;
+}
+.logContainer button {
+  background: #03a9f4;
+  font-size: 13px;
+  padding: 10px;
+  color: #fff;
+  margin-top: 10px;
+  border-radius: 5px;
 }
